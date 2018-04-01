@@ -2,6 +2,7 @@
 
 因為多合一開機隨身碟製作起來太麻煩，又得常常更新，所以就寫成 Script 紀錄過程。
 
+不使用實體隨身碟執行
 ```bash
 dd if=/dev/zero of=disk.img bs=1M count=4096
 echo -e "o\nn\np\n\n\n\n\nt\n\nb\np\nw" | fdisk disk.img
@@ -18,5 +19,14 @@ sudo losetup -d /dev/loop0
 sudo rmmod loop
 ```
 
+使用實體隨身碟
+```bash
+sudo mount -t vfat /dev/sdb1 root -o rw,uid=$(id -u),gid=$(id -g)
+bash make.sh /dev/sdb1
+```
 
+
+測試開機的指令（好像會記憶體不足）
+```bash
 sudo qemu-system-x86_64 -hda /dev/sdb
+```
