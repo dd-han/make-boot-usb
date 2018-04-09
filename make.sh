@@ -6,6 +6,7 @@ UBUNTU_RELEASE=( ["trusty-updates"]="14.04 LTS (Trusty Tahr)" ["xenial-updates"]
 declare -A DEBIAN_RELEASE
 DEBIAN_RELEASE=( ["wheezy"]="7 (wheezy)" ["jessie"]="8 (jessie)" ["stretch"]="9 (stretch)" ["buster"]="10 (buster)")
 
+####
 ## install grub
 mkdir root/EFI
 sudo grub-install --target=i386-pc --boot-directory=root/EFI $1
@@ -17,14 +18,32 @@ touch root/EFI/DD-HAN-BOOT-TAG.txt
 
 cd "source"
 
-# ArchLinux Part
+####
+## Parted Magic
+if [ -f pmagic* ]; then
+    7z x pmagic* -opmagic
+    mkdir -p ../root/lives/pmagic/
+    cp -a pmagic/pmagic ../root/lives/pmagic/
+
+    sed -i "s/settings=\"[^\"]*/& directory=\/lives\/pmagic/g" pmagic/boot/grub/grub.cfg
+    sed -i 's/\/pmagic\//\/lives\/pmagic&/g' pmagic/boot/grub/grub.cfg
+    sed -i 's/\/boot\//\/lives\/pmagic&/g' pmagic/boot/grub/grub.cfg
+
+    rm -rf pmagic/boot/grub/x86_64-efi
+    cp -a pmagic/boot ../root/lives/pmagic/
+
+fi
+
+####
+## ArchLinux Part
 curl https://www.archlinux.org/static/netboot/ipxe.8da38b4a9310.pxe -o ipxe.8da38b4a9310.pxe
 curl https://www.archlinux.org/static/netboot/ipxe.1e77e6bfd61e.efi -o ipxe.1e77e6bfd61e.efi
 mkdir -p ../root/lives/ArchLinux/
 cp ipxe* ../root/lives/ArchLinux/
 
 
-# Ubuntu part
+####
+## Ubuntu part
 for code in "${!UBUNTU_RELEASE[@]}"; do 
     echo "downloading $code - ${UBUNTU_RELEASE[$code]}"
     curl http://archive.ubuntu.com/ubuntu/dists/$code/main/installer-i386/current/images/netboot/mini.iso -o $code-i386.iso
@@ -76,8 +95,8 @@ for code in "${!UBUNTU_RELEASE[@]}"; do
 done
 
 
-# Debian Part
-
+####
+## Debian Part
 for code in "${!DEBIAN_RELEASE[@]}"; do 
     echo "downloading $code - ${DEBIAN_RELEASE[$code]}"
     curl http://ftp.nl.debian.org/debian/dists/$code/main/installer-i386/current/images/netboot/mini.iso -o $code-i386.iso
@@ -113,7 +132,6 @@ for code in "${!DEBIAN_RELEASE[@]}"; do
     rm -rf $code-i386/boot/grub/i386-efi
     rm -rf $code-i386/\[BOOT\]
 done
-
 
 for code in "${!DEBIAN_RELEASE[@]}"; do 
     echo "copy $code - ${DEBIAN_RELEASE[$code]}"
