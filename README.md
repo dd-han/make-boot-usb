@@ -26,7 +26,10 @@ bash make.sh /dev/sdb1
 ```
 
 
-測試開機的指令（好像會記憶體不足）
+測試開機的指令（好像有 bug 會 Kernel Panic）
 ```bash
-sudo qemu-system-x86_64 -hda /dev/sdb
+sudo qemu-system-x86_64 -m 1024 -hda /dev/sdb -enable-kvm
+sudo qemu-system-x86_64 -m 1024 -hda /dev/sdb -enable-kvm -bios /usr/share/edk2/ovmf/OVMF_CODE.fd
+sudo qemu-system-x86_64 -m 1024 -hda /dev/sdb -enable-kvm -bios /usr/share/edk2/ovmf-ia32/OVMF_CODE.fd
 ```
+
