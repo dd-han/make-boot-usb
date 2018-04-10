@@ -23,8 +23,6 @@ cd "source"
 if [ -f "Hirens.BootCD.15.2.zip" ]; then
     7z x Hirens.BootCD.15.2.zip -ohirens
     7z x hirens/Hiren\'s.BootCD.15.2.iso -ohirens/iso
-    # rm -rf hirens/iso/\[BOOT\]
-    rm -rf hirens/iso/
     cp -a hirens/iso/HBCD ../root
 fi
 
