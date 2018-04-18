@@ -44,8 +44,13 @@ fi
 
 ####
 ## ArchLinux Part
-curl https://www.archlinux.org/static/netboot/ipxe.8da38b4a9310.pxe -o ipxe.8da38b4a9310.pxe
-curl https://www.archlinux.org/static/netboot/ipxe.1e77e6bfd61e.efi -o ipxe.1e77e6bfd61e.efi
+if [ ! -f ipxe.8da38b4a9310.pxe ]; then
+    curl https://www.archlinux.org/static/netboot/ipxe.8da38b4a9310.pxe -o ipxe.8da38b4a9310.pxe
+fi
+
+if [ ! -f ipxe.1e77e6bfd61e.efi ]; then
+    curl https://www.archlinux.org/static/netboot/ipxe.1e77e6bfd61e.efi -o ipxe.1e77e6bfd61e.efi
+fi
 mkdir -p ../root/lives/ArchLinux/
 cp ipxe* ../root/lives/ArchLinux/
 
@@ -54,8 +59,12 @@ cp ipxe* ../root/lives/ArchLinux/
 ## Ubuntu part
 for code in "${!UBUNTU_RELEASE[@]}"; do 
     echo "downloading $code - ${UBUNTU_RELEASE[$code]}"
-    curl http://archive.ubuntu.com/ubuntu/dists/$code/main/installer-i386/current/images/netboot/mini.iso -o $code-i386.iso
-    curl http://archive.ubuntu.com/ubuntu/dists/$code/main/installer-amd64/current/images/netboot/mini.iso -o $code-amd64.iso
+    if [ ! -f "$code-i386.iso" ]; then
+        curl http://archive.ubuntu.com/ubuntu/dists/$code/main/installer-i386/current/images/netboot/mini.iso -o $code-i386.iso
+    fi
+    if [ ! -f "$code-amd64.iso" ]; then
+        curl http://archive.ubuntu.com/ubuntu/dists/$code/main/installer-amd64/current/images/netboot/mini.iso -o $code-amd64.iso
+    fi
 
 done
 
@@ -106,9 +115,13 @@ done
 ####
 ## Debian Part
 for code in "${!DEBIAN_RELEASE[@]}"; do 
-    echo "downloading $code - ${DEBIAN_RELEASE[$code]}"
+  echo "downloading $code - ${DEBIAN_RELEASE[$code]}"
+  if [ ! -f "$code-i386.iso" ]; then
     curl http://ftp.nl.debian.org/debian/dists/$code/main/installer-i386/current/images/netboot/mini.iso -o $code-i386.iso
+  fi
+  if [ ! -f "$code-amd64.iso" ]; then
     curl http://ftp.nl.debian.org/debian/dists/$code/main/installer-amd64/current/images/netboot/mini.iso -o $code-amd64.iso
+  fi
 done
 
 for code in "${!DEBIAN_RELEASE[@]}"; do 
