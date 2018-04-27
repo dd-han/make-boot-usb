@@ -19,7 +19,7 @@ if [ "$ENABLE_GRUB" == "TRUE" ]; then
     cp grub.cfg root/EFI/grub
 fi
 
-if [ "$ENABLE_GRUB" == "TRUE" ]; then 
+if [ "$ENABLE_SYSLINUX" == "TRUE" ]; then 
     cp syslinux.cfg root/
     sudo extlinux --install root
     cp /usr/lib/syslinux/bios/*.c32 root
