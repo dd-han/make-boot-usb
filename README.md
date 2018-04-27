@@ -22,7 +22,7 @@ sudo rmmod loop
 使用實體隨身碟
 ```bash
 sudo mount -t vfat /dev/sdb1 root -o rw,uid=$(id -u),gid=$(id -g)
-bash make.sh /dev/sdb
+ENABLE_GRUB=TRUE bash make.sh /dev/sdb
 ```
 
 

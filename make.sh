@@ -1,6 +1,6 @@
 #!/bin/bash
-ENABLE_GRUB="TRUE"
-ENABLE_SYSLINUX="TRUE"
+# ENABLE_GRUB="TRUE"
+# ENABLE_SYSLINUX="TRUE"
 
 declare -A UBUNTU_RELEASE
 UBUNTU_RELEASE=( ["trusty-updates"]="14.04 LTS (Trusty Tahr)" ["xenial-updates"]="16.04 LTS (Xenial Xerus)" ["artful-updates"]="17.10 (Artful Aradvark)" ["bionic-updates"]="18.04 LTS (Bionic Beaver)")
@@ -9,6 +9,7 @@ declare -A DEBIAN_RELEASE
 DEBIAN_RELEASE=( ["wheezy"]="7 (wheezy)" ["jessie"]="8 (jessie)" ["stretch"]="9 (stretch)" ["buster"]="10 (buster)")
 
 ####
+## boot loader
 if [ "$ENABLE_GRUB" == "TRUE" ]; then 
     mkdir root/EFI
     touch root/EFI/DD-HAN-BOOT-TAG.txt
@@ -31,25 +32,28 @@ cd "source"
 ####
 ## Hiren's BootCD (DOS)
 if [ -f "Hirens.BootCD.15.2.zip" ]; then
-    7z x Hirens.BootCD.15.2.zip -ohirens
-    7z x hirens/Hiren\'s.BootCD.15.2.iso -ohirens/iso
+    if [ ! -d "hirens" ]; then
+        7z x Hirens.BootCD.15.2.zip -ohirens
+        7z x hirens/Hiren\'s.BootCD.15.2.iso -ohirens/iso
+    fi
     cp -a hirens/iso/HBCD ../root
 fi
 
 ####
 ## Parted Magic
 if [ -f pmagic* ]; then
-    7z x pmagic* -opmagic
-    mkdir -p ../root/lives/pmagic/
-    cp -a pmagic/pmagic ../root/lives/pmagic/
+    if [ ! -d pmagic ]; then
+        7z x pmagic* -opmagic
+        mkdir -p ../root/lives/pmagic/
+        cp -a pmagic/pmagic ../root/lives/pmagic/
 
-    sed -i "s/settings=\"[^\"]*/& directory=\/lives\/pmagic/g" pmagic/boot/grub/grub.cfg
-    sed -i 's/\/pmagic\//\/lives\/pmagic&/g' pmagic/boot/grub/grub.cfg
-    sed -i 's/\/boot\//\/lives\/pmagic&/g' pmagic/boot/grub/grub.cfg
+        sed -i "s/settings=\"[^\"]*/& directory=\/lives\/pmagic/g" pmagic/boot/grub/grub.cfg
+        sed -i 's/\/pmagic\//\/lives\/pmagic&/g' pmagic/boot/grub/grub.cfg
+        sed -i 's/\/boot\//\/lives\/pmagic&/g' pmagic/boot/grub/grub.cfg
 
-    rm -rf pmagic/boot/grub/x86_64-efi
+        rm -rf pmagic/boot/grub/x86_64-efi
+    fi
     cp -a pmagic/boot ../root/lives/pmagic/
-
 fi
 
 ####
@@ -81,33 +85,35 @@ done
 for code in "${!UBUNTU_RELEASE[@]}"; do 
     echo "extract and patch $code - ${UBUNTU_RELEASE[$code]}"
 
-    7z x $code-amd64.iso -o$code-amd64
-    7z x $code-i386.iso -o$code-i386
+    if [ ! -d "$code-amd64" ]; then
+        7z x $code-amd64.iso -o$code-amd64
+        7z x $code-i386.iso -o$code-i386
 
-    sed -i "s/\/boot\/grub\/font.pf2/\/lives\/ubuntu-$code\/amd64\/boot\/grub\/font.pf2/g" $code-amd64/boot/grub/grub.cfg
-    sed -i "s/\/linux/\/lives\/ubuntu-$code\/amd64\/linux/g" $code-amd64/boot/grub/grub.cfg
-    sed -i "s/\/initrd.gz/\/lives\/ubuntu-$code\/amd64\/initrd.gz/g" $code-amd64/boot/grub/grub.cfg
+        sed -i "s/\/boot\/grub\/font.pf2/\/lives\/ubuntu-$code\/amd64\/boot\/grub\/font.pf2/g" $code-amd64/boot/grub/grub.cfg
+        sed -i "s/\/linux/\/lives\/ubuntu-$code\/amd64\/linux/g" $code-amd64/boot/grub/grub.cfg
+        sed -i "s/\/initrd.gz/\/lives\/ubuntu-$code\/amd64\/initrd.gz/g" $code-amd64/boot/grub/grub.cfg
 
-    for cfg in `ls $code-amd64/*.cfg`;do
-        sed -i "s/[^ ]*\.cfg/lives\/ubuntu-$code\/amd64\/&/g" "$cfg"
-        sed -i "s/[^ ]*\.png/lives\/ubuntu-$code\/amd64\/&/g" "$cfg"
-        sed -i "s/kernel linux/kernel lives\/ubuntu-$code\/amd64\/linux/g" "$cfg"
-        sed -i "s/initrd.gz/lives\/ubuntu-$code\/amd64\/&/g" "$cfg"
-    done
+        for cfg in `ls $code-amd64/*.cfg`;do
+            sed -i "s/[^ ]*\.cfg/lives\/ubuntu-$code\/amd64\/&/g" "$cfg"
+            sed -i "s/[^ ]*\.png/lives\/ubuntu-$code\/amd64\/&/g" "$cfg"
+            sed -i "s/kernel linux/kernel lives\/ubuntu-$code\/amd64\/linux/g" "$cfg"
+            sed -i "s/initrd.gz/lives\/ubuntu-$code\/amd64\/&/g" "$cfg"
+        done
 
-    rm -rf $code-amd64/boot/grub/x86_64-efi
-    rm -rf $code-amd64/boot/grub/efi.img
-    rm -rf $code-amd64/\[BOOT\]
+        rm -rf $code-amd64/boot/grub/x86_64-efi
+        rm -rf $code-amd64/boot/grub/efi.img
+        rm -rf $code-amd64/\[BOOT\]
 
-    cp -r $code-amd64/boot $code-i386/boot
-    sed -i "s/$code\/amd64/$code\/i386/g" $code-i386/boot/grub/grub.cfg
-    for cfg in `ls $code-i386/*.cfg`;do
-        sed -i "s/[^ ]*\.cfg/lives\/ubuntu-$code\/i386\/&/g" "$cfg"
-        sed -i "s/[^ ]*\.png/lives\/ubuntu-$code\/i386\/&/g" "$cfg"
-        sed -i "s/kernel linux/kernel lives\/ubuntu-$code\/i386\/linux/g" "$cfg"
-        sed -i "s/initrd.gz/lives\/ubuntu-$code\/i386\/&/g" "$cfg"
-    done
-    rm -rf $code-i386/\[BOOT\]
+        cp -r $code-amd64/boot $code-i386/boot
+        sed -i "s/$code\/amd64/$code\/i386/g" $code-i386/boot/grub/grub.cfg
+        for cfg in `ls $code-i386/*.cfg`;do
+            sed -i "s/[^ ]*\.cfg/lives\/ubuntu-$code\/i386\/&/g" "$cfg"
+            sed -i "s/[^ ]*\.png/lives\/ubuntu-$code\/i386\/&/g" "$cfg"
+            sed -i "s/kernel linux/kernel lives\/ubuntu-$code\/i386\/linux/g" "$cfg"
+            sed -i "s/initrd.gz/lives\/ubuntu-$code\/i386\/&/g" "$cfg"
+        done
+        rm -rf $code-i386/\[BOOT\]
+    fi
 done
 
 
@@ -162,31 +168,33 @@ done
 for code in "${!DEBIAN_RELEASE[@]}"; do 
     echo "extract and patch $code - ${UBUNTU_RELEASE[$code]}"
 
-    7z x $code-amd64.iso -o$code-amd64
-    7z x $code-i386.iso -o$code-i386
+    if [ ! -d "$code-amd64" ]; then
+        7z x $code-amd64.iso -o$code-amd64
+        7z x $code-i386.iso -o$code-i386
 
-    if [ $code == "wheezy" ]; then
-        mkdir -p $code-i386/boot/grub/
-        cp $code-amd64/boot/grub/* $code-i386/boot/grub/
+        if [ $code == "wheezy" ]; then
+            mkdir -p $code-i386/boot/grub/
+            cp $code-amd64/boot/grub/* $code-i386/boot/grub/
+        fi
+
+        sed -i "s/\$prefix\/font.pf2/\/lives\/debian-$code\/amd64\/boot\/grub\/font.pf2/g" $code-amd64/boot/grub/grub.cfg
+        sed -i "s/\/isolinux/\/lives\/debian-$code\/amd64/g" $code-amd64/boot/grub/grub.cfg
+        sed -i "s/\/linux/\/lives\/debian-$code\/amd64\/linux/g" $code-amd64/boot/grub/grub.cfg
+        sed -i "s/\/initrd.gz/\/lives\/debian-$code\/amd64\/initrd.gz/g" $code-amd64/boot/grub/grub.cfg
+
+        rm $code-amd64/boot/grub/efi.img
+        rm -rf $code-amd64/boot/grub/x86_64-efi
+        rm -rf $code-amd64/\[BOOT\]
+
+        sed -i "s/\$prefix\/font.pf2/\/lives\/debian-$code\/i386\/boot\/grub\/font.pf2/g" $code-i386/boot/grub/grub.cfg
+        sed -i "s/\/isolinux/\/lives\/debian-$code\/i386/g" $code-i386/boot/grub/grub.cfg
+        sed -i "s/\/linux/\/lives\/debian-$code\/i386\/linux/g" $code-i386/boot/grub/grub.cfg
+        sed -i "s/\/initrd.gz/\/lives\/debian-$code\/i386\/initrd.gz/g" $code-i386/boot/grub/grub.cfg
+
+        rm $code-i386/boot/grub/efi.img
+        rm -rf $code-i386/boot/grub/i386-efi
+        rm -rf $code-i386/\[BOOT\]
     fi
-
-    sed -i "s/\$prefix\/font.pf2/\/lives\/debian-$code\/amd64\/boot\/grub\/font.pf2/g" $code-amd64/boot/grub/grub.cfg
-    sed -i "s/\/isolinux/\/lives\/debian-$code\/amd64/g" $code-amd64/boot/grub/grub.cfg
-    sed -i "s/\/linux/\/lives\/debian-$code\/amd64\/linux/g" $code-amd64/boot/grub/grub.cfg
-    sed -i "s/\/initrd.gz/\/lives\/debian-$code\/amd64\/initrd.gz/g" $code-amd64/boot/grub/grub.cfg
-
-    rm $code-amd64/boot/grub/efi.img
-    rm -rf $code-amd64/boot/grub/x86_64-efi
-    rm -rf $code-amd64/\[BOOT\]
-
-    sed -i "s/\$prefix\/font.pf2/\/lives\/debian-$code\/i386\/boot\/grub\/font.pf2/g" $code-i386/boot/grub/grub.cfg
-    sed -i "s/\/isolinux/\/lives\/debian-$code\/i386/g" $code-i386/boot/grub/grub.cfg
-    sed -i "s/\/linux/\/lives\/debian-$code\/i386\/linux/g" $code-i386/boot/grub/grub.cfg
-    sed -i "s/\/initrd.gz/\/lives\/debian-$code\/i386\/initrd.gz/g" $code-i386/boot/grub/grub.cfg
-
-    rm $code-i386/boot/grub/efi.img
-    rm -rf $code-i386/boot/grub/i386-efi
-    rm -rf $code-i386/\[BOOT\]
 done
 
 for code in "${!DEBIAN_RELEASE[@]}"; do 
