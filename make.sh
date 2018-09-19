@@ -11,6 +11,7 @@ DEBIAN_RELEASE=( ["wheezy"]="7 (wheezy)" ["jessie"]="8 (jessie)" ["stretch"]="9 
 ####
 ## boot loader
 if [ "$ENABLE_GRUB" == "TRUE" ]; then 
+    echo install GRUB
     mkdir root/EFI
     touch root/EFI/DD-HAN-BOOT-TAG.txt
     sudo grub-install --target=i386-pc --boot-directory=root/EFI $1
@@ -19,7 +20,8 @@ if [ "$ENABLE_GRUB" == "TRUE" ]; then
     cp grub.cfg root/EFI/grub
 fi
 
-if [ "$ENABLE_SYSLINUX" == "TRUE" ]; then 
+if [ "$ENABLE_SYSLINUX" == "TRUE" ]; then
+    echo install SYSLINUX
     cp syslinux.cfg root/
     sudo extlinux --install root
     cp /usr/lib/syslinux/bios/*.c32 root
@@ -134,22 +136,28 @@ for code in "${!UBUNTU_RELEASE[@]}"; do
     cp -r $code-i386/*.cfg ../root/lives/ubuntu-$code/i386
     cp -r $code-i386/*.txt ../root/lives/ubuntu-$code/i386
 
-    echo "menuentry \"Ubuntu ${UBUNTU_RELEASE[$code]} 32Bit\" {" >> ../root/EFI/grub/grub.cfg
-    echo "	configfile /lives/ubuntu-$code/i386/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
-    echo "}" >> ../root/EFI/grub/grub.cfg
+    ## GRUB2 config
+    if [ "$ENABLE_GRUB" == "TRUE" ]; then 
 
-    echo "menuentry \"Ubuntu ${UBUNTU_RELEASE[$code]} 64Bit\" {" >> ../root/EFI/grub/grub.cfg
-    echo "    configfile /lives/ubuntu-$code/amd64/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
-    echo "}" >> ../root/EFI/grub/grub.cfg
+        echo "menuentry \"Ubuntu ${UBUNTU_RELEASE[$code]} 32Bit\" {" >> ../root/EFI/grub/grub.cfg
+        echo "	configfile /lives/ubuntu-$code/i386/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
+        echo "}" >> ../root/EFI/grub/grub.cfg
 
-    ## syslinux CONFIG
-    echo "LABEL Ubuntu ${UBUNTU_RELEASE[$code]} 32Bit" >> ../root/syslinux.cfg
-    echo "    KERNEL vesamenu.c32" >> ../root/syslinux.cfg
-    echo "    APPEND lives/ubuntu-$code/i386/menu.cfg" >> ../root/syslinux.cfg
+        echo "menuentry \"Ubuntu ${UBUNTU_RELEASE[$code]} 64Bit\" {" >> ../root/EFI/grub/grub.cfg
+        echo "    configfile /lives/ubuntu-$code/amd64/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
+        echo "}" >> ../root/EFI/grub/grub.cfg
+    fi
 
-    echo "LABEL Ubuntu ${UBUNTU_RELEASE[$code]} 64Bit" >> ../root/syslinux.cfg
-    echo "    KERNEL vesamenu.c32" >> ../root/syslinux.cfg
-    echo "    APPEND lives/ubuntu-$code/amd64/menu.cfg" >> ../root/syslinux.cfg
+    if [ "$ENABLE_SYSLINUX" == "TRUE" ]; then 
+        ## syslinux CONFIG
+        echo "LABEL Ubuntu ${UBUNTU_RELEASE[$code]} 32Bit" >> ../root/syslinux.cfg
+        echo "    KERNEL vesamenu.c32" >> ../root/syslinux.cfg
+        echo "    APPEND lives/ubuntu-$code/i386/menu.cfg" >> ../root/syslinux.cfg
+
+        echo "LABEL Ubuntu ${UBUNTU_RELEASE[$code]} 64Bit" >> ../root/syslinux.cfg
+        echo "    KERNEL vesamenu.c32" >> ../root/syslinux.cfg
+        echo "    APPEND lives/ubuntu-$code/amd64/menu.cfg" >> ../root/syslinux.cfg
+    fi
 done
 
 
@@ -211,11 +219,26 @@ for code in "${!DEBIAN_RELEASE[@]}"; do
     cp $code-i386/initrd.gz ../root/lives/debian-$code/i386
     cp -r $code-i386/boot ../root/lives/debian-$code/i386
 
-    echo "menuentry \"Debian ${DEBIAN_RELEASE[$code]} 32Bit\" {" >> ../root/EFI/grub/grub.cfg
-    echo "	configfile /lives/debian-$code/i386/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
-    echo "}" >> ../root/EFI/grub/grub.cfg
+    ## GRUB2 config
+    if [ "$ENABLE_GRUB" == "TRUE" ]; then 
 
-    echo "menuentry \"Debian ${DEBIAN_RELEASE[$code]} 64Bit\" {" >> ../root/EFI/grub/grub.cfg
-    echo "    configfile /lives/debian-$code/amd64/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
-    echo "}" >> ../root/EFI/grub/grub.cfg
+        echo "menuentry \"Debian ${DEBIAN_RELEASE[$code]} 32Bit\" {" >> ../root/EFI/grub/grub.cfg
+        echo "	configfile /lives/debian-$code/i386/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
+        echo "}" >> ../root/EFI/grub/grub.cfg
+
+        echo "menuentry \"Debian ${DEBIAN_RELEASE[$code]} 64Bit\" {" >> ../root/EFI/grub/grub.cfg
+        echo "    configfile /lives/debian-$code/amd64/boot/grub/grub.cfg" >> ../root/EFI/grub/grub.cfg
+        echo "}" >> ../root/EFI/grub/grub.cfg
+    fi
+
+    if [ "$ENABLE_SYSLINUX" == "TRUE" ]; then 
+        ## syslinux CONFIG
+        echo "LABEL Debian ${DEBIAN_RELEASE[$code]} 32Bit" >> ../root/syslinux.cfg
+        echo "    KERNEL vesamenu.c32" >> ../root/syslinux.cfg
+        echo "    APPEND lives/debian-$code/i386/menu.cfg" >> ../root/syslinux.cfg
+
+        echo "LABEL Debian ${DEBIAN_RELEASE[$code]} 64Bit" >> ../root/syslinux.cfg
+        echo "    KERNEL vesamenu.c32" >> ../root/syslinux.cfg
+        echo "    APPEND lives/debian-$code/amd64/menu.cfg" >> ../root/syslinux.cfg
+    fi
 done
