@@ -24,8 +24,19 @@ if [ "$ENABLE_SYSLINUX" == "TRUE" ]; then
     echo install SYSLINUX
     cp syslinux.cfg root/
     sudo extlinux --install root
-    cp /usr/lib/syslinux/bios/*.c32 root
-    sudo dd bs=440 conv=notrunc count=1 if=/usr/lib/syslinux/bios/mbr.bin of=$1
+    if [ -d "/usr/lib/syslinux/bios/" ]; then
+        SYS_MOD_PATH="/usr/lib/syslinux/bios/"
+    elif [ -d "/usr/lib/syslinux/modules/bios/" ]; then
+        SYS_MOD_PATH="/usr/lib/syslinux/modules/bios/"
+    fi
+    cp ${SYS_MOD_PATH}* root
+
+    if [ -f "/usr/lib/syslinux/bios/mbr.bin" ]; then
+        SYS_MBR_PATH="/usr/lib/syslinux/bios/mbr.bin"
+    elif [ -f "/usr/lib/syslinux/mbr/mbr.bin" ]; then
+        SYS_MBR_PATH="/usr/lib/syslinux/mbr/mbr.bin"
+    fi
+    sudo dd bs=440 conv=notrunc count=1 if=${SYS_MBR_PATH} of=$1
 fi
 
 
