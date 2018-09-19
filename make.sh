@@ -200,6 +200,12 @@ for code in "${!DEBIAN_RELEASE[@]}"; do
         sed -i "s/\/isolinux/\/lives\/debian-$code\/amd64/g" $code-amd64/boot/grub/grub.cfg
         sed -i "s/\/linux/\/lives\/debian-$code\/amd64\/linux/g" $code-amd64/boot/grub/grub.cfg
         sed -i "s/\/initrd.gz/\/lives\/debian-$code\/amd64\/initrd.gz/g" $code-amd64/boot/grub/grub.cfg
+        for cfg in `ls $code-amd64/*.cfg`;do
+            sed -i "s/[^ ]*\.cfg/lives\/debian-$code\/amd64\/&/g" "$cfg"
+            sed -i "s/[^ ]*\.png/lives\/debian-$code\/amd64\/&/g" "$cfg"
+            sed -i "s/kernel linux/kernel lives\/debian-$code\/amd64\/linux/g" "$cfg"
+            sed -i "s/initrd.gz/lives\/debian-$code\/amd64\/&/g" "$cfg"
+        done
 
         rm $code-amd64/boot/grub/efi.img
         rm -rf $code-amd64/boot/grub/x86_64-efi
@@ -209,6 +215,12 @@ for code in "${!DEBIAN_RELEASE[@]}"; do
         sed -i "s/\/isolinux/\/lives\/debian-$code\/i386/g" $code-i386/boot/grub/grub.cfg
         sed -i "s/\/linux/\/lives\/debian-$code\/i386\/linux/g" $code-i386/boot/grub/grub.cfg
         sed -i "s/\/initrd.gz/\/lives\/debian-$code\/i386\/initrd.gz/g" $code-i386/boot/grub/grub.cfg
+        for cfg in `ls $code-i386/*.cfg`;do
+            sed -i "s/[^ ]*\.cfg/lives\/debian-$code\/i386\/&/g" "$cfg"
+            sed -i "s/[^ ]*\.png/lives\/debian-$code\/i386\/&/g" "$cfg"
+            sed -i "s/kernel linux/kernel lives\/debian-$code\/i386\/linux/g" "$cfg"
+            sed -i "s/initrd.gz/lives\/debian-$code\/i386\/&/g" "$cfg"
+        done
 
         rm $code-i386/boot/grub/efi.img
         rm -rf $code-i386/boot/grub/i386-efi
@@ -225,10 +237,12 @@ for code in "${!DEBIAN_RELEASE[@]}"; do
     cp $code-amd64/linux ../root/lives/debian-$code/amd64
     cp $code-amd64/initrd.gz ../root/lives/debian-$code/amd64
     cp -r $code-amd64/boot ../root/lives/debian-$code/amd64
+    cp -r $code-amd64/*.{cfg,txt,png} ../root/lives/debian-$code/amd64
 
     cp $code-i386/linux ../root/lives/debian-$code/i386
     cp $code-i386/initrd.gz ../root/lives/debian-$code/i386
     cp -r $code-i386/boot ../root/lives/debian-$code/i386
+    cp -r $code-i386/*.{cfg,txt,png} ../root/lives/debian-$code/i386
 
     ## GRUB2 config
     if [ "$ENABLE_GRUB" == "TRUE" ]; then 
