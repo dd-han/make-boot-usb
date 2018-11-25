@@ -3,7 +3,7 @@
 # ENABLE_SYSLINUX="TRUE"
 
 declare -A UBUNTU_RELEASE
-UBUNTU_RELEASE=( ["trusty-updates"]="14.04 LTS (Trusty Tahr)" ["xenial-updates"]="16.04 LTS (Xenial Xerus)" ["artful-updates"]="17.10 (Artful Aradvark)" ["bionic-updates"]="18.04 LTS (Bionic Beaver)")
+UBUNTU_RELEASE=( ["xenial-updates"]="16.04 LTS (Xenial Xerus)" ["artful-updates"]="17.10 (Artful Aradvark)" ["bionic-updates"]="18.04 LTS (Bionic Beaver)" ["cosmic"]="18.10 (Cosmic Cuttlefish)")
 
 declare -A DEBIAN_RELEASE
 DEBIAN_RELEASE=( ["wheezy"]="7 (wheezy)" ["jessie"]="8 (jessie)" ["stretch"]="9 (stretch)" ["buster"]="10 (buster)")
