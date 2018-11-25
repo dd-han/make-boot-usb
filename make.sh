@@ -41,6 +41,7 @@ fi
 
 
 cd "source"
+mkdir -p ../root/lives/
 
 ####
 ## Hiren's BootCD (DOS)
@@ -50,6 +51,21 @@ if [ -f "Hirens.BootCD.15.2.zip" ]; then
         7z x hirens/Hiren\'s.BootCD.15.2.iso -ohirens/iso
     fi
     cp -a hirens/iso/HBCD ../root
+fi
+
+## Hiren's BootCD PE (Win 10)
+if [ -f "HBCD_PE_x64.iso" ]; then
+    if [ ! -d "hirensPE" ]; then
+        7z x HBCD_PE_x64.iso -ohirensPE
+    fi
+    cp hirensPE/bootmgr ../root/lives/
+    cp -a hirensPE/Boot ../root/
+    cp -a hirensPE/EFI/Microsoft ../root/EFI/
+    mkdir -p ../root/EFI/Microsoft/boot_64
+    cp -a hirensPE/EFI/Boot/* ../root/EFI/Microsoft/boot_64/
+    cp -a hirensPE/sources ../root/
+    cp -a hirensPE/HBCD_PE.ini ../root/
+    cp -a hirensPE/Version.txt ../root/HBCD_PE_Version.txt
 fi
 
 ####

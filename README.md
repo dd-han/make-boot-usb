@@ -14,12 +14,11 @@ export ENABLE_SYSLINUX="TRUE"
 
 不使用實體隨身碟執行
 ```bash
-dd if=/dev/zero of=disk.img bs=1M count=2048
+dd if=/dev/zero of=disk.img bs=1M count=4096
 echo -e "o\nn\np\n\n\n\n\nt\n\nb\np\na\nw" | fdisk disk.img
 sudo modprobe loop
 sudo losetup -f -P disk.img
 sudo mkfs.msdos /dev/loop0p1
-mkdir root
 sudo mount -t vfat /dev/loop0p1 root -o rw,uid=$(id -u),gid=$(id -g)
 mkdir -p root/EFI/grub
 echo "(hd0)   /dev/loop0" > root/EFI/grub/device.map

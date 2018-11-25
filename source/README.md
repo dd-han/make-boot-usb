@@ -6,3 +6,4 @@ Linux 的開機檔案會自動放到這個資料夾。
 
 - 加入 parted magic 請將檔案 `pmagic_XXXX-XX-XX.iso` 放在這個資料夾
 - 加入 Hiren's BootCD (Dos) 請將檔案 `Hirens.BootCD.15.2.zip` 放在這個資料夾
+- 加入 Hiren's BootCD PE (Win 10)請將檔案 `HBCD_PE_x64.iso` 放在這個資料夾
